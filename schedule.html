@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Five Pillars" />
+  <title>The Five Pillars</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: #0F0F0F;
+      color: #F0EDE8;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    .header {
+      padding: env(safe-area-inset-top, 48px) 24px 28px;
+      padding-top: max(env(safe-area-inset-top), 48px);
+      border-bottom: 1px solid #222;
+      position: relative;
+      overflow: hidden;
+    }
+    .header-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(232,120,57,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 50%, rgba(41,121,200,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .header-label {
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 10px;
+      font-family: 'Courier New', monospace;
+    }
+    .header h1 {
+      font-size: clamp(26px, 7vw, 44px);
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+    .header-sub {
+      color: #888;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1px;
+    }
+
+    /* LEGEND */
+    .legend {
+      padding: 16px 24px;
+      border-bottom: 1px solid #1A1A1A;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .legend-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .legend-text {
+      font-size: 10px;
+      color: #999;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* DAY SELECTOR */
+    .day-selector {
+      padding: 20px 24px 0;
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .day-selector::-webkit-scrollbar { display: none; }
+
+    .day-btn {
+      background: transparent;
+      color: #555;
+      border: 1px solid #222;
+      border-radius: 4px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      font-weight: 400;
+      transition: all 0.2s ease;
+      position: relative;
+      flex-shrink: 0;
+      -webkit-appearance: none;
+    }
+    .day-btn.active {
+      background: #F0EDE8;
+      color: #0F0F0F;
+      border-color: #F0EDE8;
+      font-weight: 700;
+    }
+    .music-dot {
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #E07B39;
+    }
+
+    /* DAY LABEL */
+    .day-label {
+      padding: 20px 24px 8px;
+    }
+    .day-label h2 {
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: -0.3px;
+    }
+
+    /* BLOCKS */
+    .blocks {
+      padding: 8px 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .block {
+      background: #141414;
+      border: 1px solid #1E1E1E;
+      border-radius: 6px;
+      padding: 13px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .block.highlight {
+      background: rgba(224,123,57,0.08);
+      border-color: rgba(224,123,57,0.3);
+    }
+    .block-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+    .block-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .block-note {
+      font-size: 13px;
+      color: #F0EDE8;
+      margin-bottom: 2px;
+      line-height: 1.3;
+    }
+    .block-time {
+      font-size: 10px;
+      color: #555;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.5px;
+    }
+    .block-tag {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-family: 'Courier New', monospace;
+      flex-shrink: 0;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* WEEKLY TOTALS */
+    .totals {
+      margin: 0 24px 28px;
+      background: #141414;
+      border: 1px solid #1E1E1E;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .totals-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid #1E1E1E;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #555;
+      font-family: 'Courier New', monospace;
+    }
+    .total-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 18px;
+      border-bottom: 1px solid #1A1A1A;
+    }
+    .total-row:last-child { border-bottom: none; }
+    .total-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .total-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .total-label { font-size: 13px; color: #CCC; }
+    .total-hours {
+      font-size: 11px;
+      color: #666;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.5px;
+      text-align: right;
+      max-width: 160px;
+    }
+
+    /* PRINCIPLES */
+    .principles {
+      margin: 0 24px;
+      padding-bottom: max(env(safe-area-inset-bottom, 32px), 32px);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+    .principle {
+      background: #141414;
+      border: 1px solid #1E1E1E;
+      border-radius: 6px;
+      padding: 13px 14px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .principle-icon {
+      color: #444;
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .principle-text {
+      font-size: 11px;
+      color: #888;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 360px) {
+      .principles { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-bg"></div>
+  <p class="header-label">Weekly Framework</p>
+  <h1>The Five Pillars</h1>
+  <p class="header-sub">Finance · Music · Body · Relationships · Faith</p>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<div class="day-selector" id="daySelector"></div>
+
+<div class="day-label"><h2 id="dayTitle"></h2></div>
+
+<div class="blocks" id="blocks"></div>
+
+<div class="totals">
+  <div class="totals-header">Weekly Totals</div>
+  <div id="totals"></div>
+</div>
+
+<div class="principles" id="principles"></div>
+
+<script>
+const pillars = {
+  gym:           { label: "Gym",              accent: "#4CAF50" },
+  quant:         { label: "Quant Finance",    accent: "#2979C8" },
+  music:         { label: "Music",            accent: "#E07B39" },
+  relationship:  { label: "Relationships",    accent: "#D64F8A" },
+  faith:         { label: "Faith",            accent: "#8B5CF6" },
+  rest:          { label: "Rest",             accent: "#9E9E9E" },
+  work:          { label: "Work",             accent: "#C49A00" },
+  commute_quant: { label: "Commute — Quant",  accent: "#1A5FA0" },
+  commute_music: { label: "Commute — Music",  accent: "#B85E20" },
+};
+
+const days = [
+  { id: "mon", label: "MON", full: "Monday" },
+  { id: "tue", label: "TUE", full: "Tuesday" },
+  { id: "wed", label: "WED", full: "Wednesday" },
+  { id: "thu", label: "THU", full: "Thursday" },
+  { id: "fri", label: "FRI", full: "Friday" },
+  { id: "sat", label: "SAT", full: "Saturday" },
+  { id: "sun", label: "SUN", full: "Sunday" },
+];
+
+const schedule = {
+  mon: [
+    { time: "6:30–7:30am",    pillar: "gym",           note: "Morning gym session" },
+    { time: "8:00–9:00am",    pillar: "commute_quant", note: "Commute → Podcasts / finance listening" },
+    { time: "9:00am–5:00pm",  pillar: "work",          note: "Deutsche Bank" },
+    { time: "5:00–6:00pm",    pillar: "commute_music", note: "Commute → Intentional music listening" },
+    { time: "6:30–9:00pm",    pillar: "quant",         note: "Quant prep session" },
+    { time: "9:00pm+",        pillar: "relationship",  note: "Girlfriend / wind down" },
+  ],
+  tue: [
+    { time: "7:00–8:00am",    pillar: "rest",          note: "Rest / extra sleep — recovery day" },
+    { time: "8:00–9:00am",    pillar: "commute_quant", note: "Commute → Podcasts / finance listening" },
+    { time: "9:00am–5:00pm",  pillar: "work",          note: "Deutsche Bank" },
+    { time: "5:00–6:00pm",    pillar: "commute_music", note: "Commute → Intentional music listening 🎵" },
+    { time: "6:30–8:30pm",    pillar: "quant",         note: "Quant prep session" },
+    { time: "8:30–10:00pm",   pillar: "music",         note: "Music session 🎵", highlight: true },
+  ],
+  wed: [
+    { time: "6:30–7:30am",    pillar: "gym",           note: "Morning gym session" },
+    { time: "8:00–9:00am",    pillar: "commute_quant", note: "Commute → Podcasts / finance listening" },
+    { time: "9:00am–5:00pm",  pillar: "work",          note: "Deutsche Bank" },
+    { time: "5:00–6:00pm",    pillar: "commute_music", note: "Commute → Intentional music listening" },
+    { time: "6:30–9:00pm",    pillar: "quant",         note: "Quant prep session" },
+    { time: "9:00pm+",        pillar: "rest",          note: "Rest / family time" },
+  ],
+  thu: [
+    { time: "7:00–8:00am",    pillar: "rest",          note: "Rest / extra sleep — recovery day" },
+    { time: "8:00–9:00am",    pillar: "commute_quant", note: "Commute → Podcasts / finance listening" },
+    { time: "9:00am–5:00pm",  pillar: "work",          note: "Deutsche Bank" },
+    { time: "5:00–6:00pm",    pillar: "commute_music", note: "Commute → Intentional music listening 🎵" },
+    { time: "6:30–8:30pm",    pillar: "quant",         note: "Quant prep session" },
+    { time: "8:30–10:00pm",   pillar: "music",         note: "Music session 🎵", highlight: true },
+  ],
+  fri: [
+    { time: "6:30–7:30am",    pillar: "gym",           note: "Morning gym session" },
+    { time: "8:00–9:00am",    pillar: "commute_quant", note: "Commute → Podcasts / finance listening" },
+    { time: "9:00am–5:00pm",  pillar: "work",          note: "Deutsche Bank" },
+    { time: "5:00–6:00pm",    pillar: "commute_music", note: "Commute → Decompress, music listening" },
+    { time: "Evening",        pillar: "relationship",  note: "Girlfriend / family — protected" },
+  ],
+  sat: [
+    { time: "Morning",        pillar: "gym",           note: "Gym (if missed a weekday)" },
+    { time: "11:00am–3:00pm", pillar: "music",         note: "Main music block 🎵", highlight: true },
+    { time: "4:00–6:00pm",    pillar: "quant",         note: "Quant prep (optional top-up)" },
+    { time: "Evening",        pillar: "relationship",  note: "Girlfriend / social" },
+  ],
+  sun: [
+    { time: "Morning",        pillar: "faith",         note: "Church / prayer / reflection" },
+    { time: "Afternoon",      pillar: "relationship",  note: "Family time" },
+    { time: "Evening",        pillar: "rest",          note: "Rest & prepare for the week" },
+  ],
+};
+
+const weeklyTotals = [
+  { pillar: "quant",        hours: "9–12 hrs (+ 5 hrs commute listening)" },
+  { pillar: "music",        hours: "5–7 hrs (+ 5 hrs commute listening)" },
+  { pillar: "gym",          hours: "3 sessions (Mon, Wed, Fri)" },
+  { pillar: "relationship", hours: "Protected daily" },
+  { pillar: "faith",        hours: "Sunday + daily" },
+];
+
+const principles = [
+  { rule: "Gym moves to morning — evenings are freed.", icon: "↑" },
+  { rule: "Morning commute = quant. Evening commute = music.", icon: "→" },
+  { rule: "Tue & Thu evenings are music. Non-negotiable.", icon: "♪" },
+  { rule: "Friday evening is always protected for relationships.", icon: "◇" },
+  { rule: "Sunday belongs to faith, family, and rest.", icon: "○" },
+  { rule: "Nothing goes to zero for more than one week.", icon: "∞" },
+];
+
+let activeDay = "mon";
+
+// Detect today
+const jsDay = new Date().getDay(); // 0=Sun
+const dayMap = { 1:"mon", 2:"tue", 3:"wed", 4:"thu", 5:"fri", 6:"sat", 0:"sun" };
+if (dayMap[jsDay]) activeDay = dayMap[jsDay];
+
+function buildLegend() {
+  const skip = ["work", "rest", "commute_quant", "commute_music"];
+  const el = document.getElementById("legend");
+  el.innerHTML = Object.entries(pillars)
+    .filter(([k]) => !skip.includes(k))
+    .map(([, p]) => `
+      <div class="legend-item">
+        <div class="legend-dot" style="background:${p.accent}"></div>
+        <span class="legend-text">${p.label}</span>
+      </div>
+    `).join("");
+}
+
+function buildDaySelector() {
+  const el = document.getElementById("daySelector");
+  el.innerHTML = days.map(d => {
+    const hasMusic = schedule[d.id].some(s => s.pillar === "music");
+    const isActive = d.id === activeDay;
+    return `
+      <button class="day-btn${isActive ? " active" : ""}" onclick="selectDay('${d.id}')" id="btn-${d.id}">
+        ${d.label}
+        ${hasMusic ? '<div class="music-dot"></div>' : ""}
+      </button>
+    `;
+  }).join("");
+}
+
+function buildBlocks() {
+  const day = days.find(d => d.id === activeDay);
+  document.getElementById("dayTitle").textContent = day.full;
+  const el = document.getElementById("blocks");
+  el.innerHTML = schedule[activeDay].map(block => {
+    const p = pillars[block.pillar];
+    return `
+      <div class="block${block.highlight ? " highlight" : ""}" style="border-left: 3px solid ${p.accent}">
+        <div class="block-left">
+          <div class="block-dot" style="background:${p.accent}"></div>
+          <div>
+            <div class="block-note">${block.note}</div>
+            <div class="block-time">${block.time}</div>
+          </div>
+        </div>
+        <div class="block-tag" style="color:${p.accent}">${p.label}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function buildTotals() {
+  const el = document.getElementById("totals");
+  el.innerHTML = weeklyTotals.map(({ pillar, hours }) => {
+    const p = pillars[pillar];
+    return `
+      <div class="total-row">
+        <div class="total-left">
+          <div class="total-dot" style="background:${p.accent}"></div>
+          <span class="total-label">${p.label}</span>
+        </div>
+        <span class="total-hours">${hours}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+function buildPrinciples() {
+  const el = document.getElementById("principles");
+  el.innerHTML = principles.map(p => `
+    <div class="principle">
+      <span class="principle-icon">${p.icon}</span>
+      <span class="principle-text">${p.rule}</span>
+    </div>
+  `).join("");
+}
+
+function selectDay(id) {
+  document.querySelectorAll(".day-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("btn-" + id).classList.add("active");
+  activeDay = id;
+  buildBlocks();
+}
+
+buildLegend();
+buildDaySelector();
+buildBlocks();
+buildTotals();
+buildPrinciples();
+</script>
+</body>
+</html>
